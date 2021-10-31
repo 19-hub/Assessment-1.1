@@ -1,0 +1,112 @@
+---
+title: "Assessment 1.1"
+author: "Name"
+date: "10/22/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(data.table)
+library(knitr)
+library(markdown)
+library(dplyr)
+library(ggplot2)
+library(skimr)
+library(ggpubr)
+theme_set(theme_pubr())
+```
+
+
+## Part 1
+
+
+# RMarkdown editing
+# **R Markdown is a file format for making dynamic documents with R**
+# **R Markdown document is written in markdown and contains chunks of embedded R code**
+
+
+```{r}
+fastfood<-fread('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2018/2018-09-04/fastfood_calories.csv')
+kable(head(fastfood[, 2:6],10), "simple")
+filter(fastfood, calories> 1000)
+dont_eat_this<-filter(fastfood, total_fat>40, total_carb>80)
+filter(fastfood, restaurant=='Mcdonalds')
+```
+
+
+## Part 2
+
+
+```{r}
+skim(fastfood)
+fastfood %>%
+     group_by(restaurant) %>%
+     summarise(Count = n()) 
+fastfood %>%
+     group_by(restaurant) %>%
+     summarise(average_calories= mean(calories))
+fastfood %>%
+     group_by(restaurant) %>%
+     summarise(total_fat= sum(total_fat))%>%
+ggplot(aes(x = restaurant, y = total_fat, fill = restaurant)) +
+    geom_bar(stat = "identity") +
+    theme_classic() +
+    labs(
+        x = "Restaurants",
+        y = "Total Fat",
+        title = paste(
+            "Total Fat per Restaurants"
+        )
+    )
+
+fastfood %>%
+     group_by(restaurant) %>%
+     summarise(max_total_fat= max(total_fat))
+mcdata<-filter(fastfood, restaurant=='Mcdonalds')
+mcdata %>%
+ggplot(aes(x = protein, y =sugar)) +
+    geom_point(stat = "identity") +
+    theme_classic() +
+    labs(
+        x = "Protein",
+        y = "Sugar",
+        title = paste(
+            "Sugar versus Protein"
+        )
+    )
+```
+
+
+Bar charts are effective data visualization that display well summed data. Therefore, i have used bar charts to represent the total fat for each restaurant. From the chart, an easy comparison for the restaurants can be made.
+
+## Part 3
+
+```{r}
+fastfood <- mutate_at(fastfood, vars(restaurant), as.factor)
+str(fastfood)
+fastfood$calories_type<-cut_number(fastfood$calories, 3)
+fastfood$calories_type<-factor(fastfood$calories_type,labels=c("low", "med", "high"))
+fastfood[order(fastfood$calories_type),]
+ggplot(fastfood) + geom_bar(aes(x = calories_type))+
+  facet_wrap(~restaurant) + 
+  fill_palette("jco")
+fastfood$trans_fat_percent<-(fastfood$trans_fat/fastfood$total_fat)*100
+ggplot(fastfood, aes(x=restaurant, y=trans_fat, fill=restaurant)) +
+  geom_bar(stat="identity")+theme_minimal()
+fastfood %>%
+     group_by(restaurant) %>%
+     summarise(meanfat= mean(total_fat))
+ggplot(fastfood, aes(x=restaurant, y=total_fat, fill=restaurant)) +
+  geom_bar(stat="identity")+theme_minimal()
+```
+
+
+
+
+
+
+
+
+
+
